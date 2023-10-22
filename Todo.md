@@ -1,12 +1,5 @@
 # Todo
 
-The screen connector comes out the side and interferes with the case wall.
-I could switch the wires from the connector to the vias on the other side
-of the screen pcb, but i'd have to be careful not to poke through to
-the top side of the pcb, where they would interfere with the case lid.
-Alternatively, make the case wider to allow more room for the screen
-wires.
-
 FIXME: The slot in the mid-plate is too narrow for the Schottky diode.
 That's fine if we put the diode close to the Mini360 instead of close to
 the Pico, or leave the diode on the Pico side and give it a longer tail.

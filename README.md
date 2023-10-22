@@ -243,7 +243,9 @@ SCL  | 22       |  ->       | SCL     | yellow
 
 Temporarily mount the display on its standoffs.
 
-Solder leads between the display and the Pico:
+Solder leads between Pico and the vias on the display board.  Bring the
+wires up from the underside of the display board and clip any excess wire
+on the top side flush with the board, to avoid interfering with the lid.
 
 ```
 Pico Name          | Pico Pin | Direction | Display
@@ -257,6 +259,10 @@ GPIO 5             | 7        |  ->       | D/C
 GPIO 4             | 6        |  ->       | RST
 PWM 4B (GPIO 9)    | 12       |  ->       | BL
 ```
+
+Note: We solder individual wires rather than using the connector on the
+screen, because the connector comes out the side and interferes with
+the case wall.
 
 
 ## Lid
