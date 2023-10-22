@@ -1,0 +1,22 @@
+#!/bin/bash
+
+SOURCE_DIR="$1"
+
+# Find the directory that contains the .git directory.
+D="${PWD}"
+while ! [[ -d "${D}/.git" ]]; do
+    D="${D}/.."
+done
+
+# Trust that git dir, even if we're not the owner (e.g. running as root in docker).
+git config --global --add safe.directory $(realpath "${D}")
+
+COMMIT=$(git log --max-count=1 --format='format:%H' -- "${SOURCE_DIR}")
+VERSION=$(git describe --always ${COMMIT})
+echo "char const version_info_commit[] = \"${VERSION}\";" >| ./version-info.h
+
+if ! git diff --quiet --exit-code ${COMMIT} -- "${SOURCE_DIR}"; then
+    echo "char const version_info_dirty[] = \"(dirty)\";" >> ./version-info.h
+else
+    echo "char const version_info_dirty[] = \"\";" >> ./version-info.h
+fi

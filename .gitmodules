@@ -1,0 +1,12 @@
+[submodule "firmware/submodules/rp2040-husb238"]
+	path = firmware/submodules/rp2040-husb238
+	url = git@github.com:SebKuzminsky/rp2040-husb238
+[submodule "firmware/submodules/rp2040-rotary-encoder"]
+	path = firmware/submodules/rp2040-rotary-encoder
+	url = git@github.com:SebKuzminsky/rp2040-rotary-encoder.git
+[submodule "firmware/submodules/hagl"]
+	path = firmware/submodules/hagl
+	url = https://github.com/tuupola/hagl.git
+[submodule "firmware/submodules/hagl_hal"]
+	path = firmware/submodules/hagl_hal
+	url = git@github.com:SebKuzminsky/hagl_pico_mipi.git

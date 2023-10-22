@@ -1,0 +1,34 @@
+FROM debian:bookworm
+
+ENV PICO_SDK_PATH=/opt/pico/pico-sdk
+ENV PICO_EXAMPLES_PATH=/opt/pico/pico-examples
+ENV PICO_EXTRAS_PATH=/opt/pico/pico-extras
+ENV PICO_PLAYGROUND_PATH=/opt/pico/pico-playground
+
+RUN ( \
+    set -e; \
+    export DEBIAN_FRONTEND=noninteractive; \
+    apt --quiet update; \
+    apt install --quiet --yes \
+        bash-completion \
+        pkg-config \
+        python3 \
+        sudo \
+        vim-nox \
+        wget \
+    ; \
+    apt clean; \
+)
+
+# "SKIP_VSCODE=1" means "don't try to install VSCode"
+# "SKIP_USART=1" means "don't try to disable the host-side Raspberry Pi serial console"
+RUN ( \
+    set -e; \
+    export SKIP_VSCODE=1; \
+    export SKIP_UART=1; \
+    cd /opt; \
+    wget https://raw.githubusercontent.com/raspberrypi/pico-setup/master/pico_setup.sh; \
+    chmod +x pico_setup.sh; \
+    ./pico_setup.sh; \
+    rm -f pico_setup.sh; \
+)
