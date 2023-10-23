@@ -16,7 +16,7 @@ add_compile_options(
     -Wall
 )
 
-project("usb-power-supply_${PICO_BOARD}" C CXX ASM)
+project("pd-sink-box_${PICO_BOARD}" C CXX ASM)
 
 pico_sdk_init()
 
@@ -27,7 +27,7 @@ add_subdirectory("submodules/rp2040-husb238/driver")
 add_subdirectory("submodules/hagl")
 add_subdirectory("submodules/hagl_hal")
 
-set(PROGRAM_NAME power-supply)
+set(PROGRAM_NAME pd-sink-box)
 
 add_executable(
     ${PROGRAM_NAME}
