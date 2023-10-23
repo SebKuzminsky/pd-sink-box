@@ -31,6 +31,9 @@ static i2c_inst_t * i2c;
 
 static hagl_backend_t *display;
 
+static uint16_t display_width = MIPI_DISPLAY_WIDTH;
+static uint16_t display_height = MIPI_DISPLAY_HEIGHT;
+
 static int backlight_duty_cycle_max = 10*1000; // Highest possible value for duty cycle.
 static int backlight_duty_cycle = 10*1000;     // Active value for duty cycle.
 static int backlight_duty_cycle_delta = 1000;  // Duty cycle changes by this much for each knob detent.
@@ -354,8 +357,12 @@ void window_main_menu_click(void * void_context) {
 //
 
 typedef struct {
-    uint8_t dcs_address_mode[4];
-    int rotation;
+    struct {
+        uint8_t dcs_address_mode;
+        uint16_t width, height;
+        int16_t x_offset, y_offset;
+    } rotation_info[4];
+    int rotation_index;
 } window_rotate_context_t;
 
 void * window_rotate_init(void) {
@@ -373,34 +380,108 @@ void * window_rotate_init(void) {
     // MIPI_DCS_ADDRESS_MODE_RGB           0x00
     // MIPI_DCS_ADDRESS_MODE_FLIP_X        0x02
     // MIPI_DCS_ADDRESS_MODE_FLIP_Y        0x01
-    c->dcs_address_mode[0] =  0x00;
-    c->dcs_address_mode[1] =  MIPI_DCS_ADDRESS_MODE_SWAP_XY | MIPI_DCS_ADDRESS_MODE_MIRROR_X;
-    c->dcs_address_mode[2] =  MIPI_DCS_ADDRESS_MODE_MIRROR_X | MIPI_DCS_ADDRESS_MODE_MIRROR_Y;
-    c->dcs_address_mode[3] =  MIPI_DCS_ADDRESS_MODE_SWAP_XY | MIPI_DCS_ADDRESS_MODE_MIRROR_Y;
-    c->rotation = 0;
+
+    // 0°, the native orientation of the screen
+    c->rotation_info[0] = {
+        .dcs_address_mode = 0x00,
+        .width = MIPI_DISPLAY_WIDTH,
+        .height = MIPI_DISPLAY_HEIGHT,
+        .x_offset = MIPI_DISPLAY_OFFSET_X,
+        .y_offset = MIPI_DISPLAY_OFFSET_Y,
+    };
+
+    // 90°
+    c->rotation_info[1] = {
+        .dcs_address_mode = MIPI_DCS_ADDRESS_MODE_SWAP_XY | MIPI_DCS_ADDRESS_MODE_MIRROR_X,
+        .width = MIPI_DISPLAY_HEIGHT,
+        .height = MIPI_DISPLAY_WIDTH,
+        .x_offset = MIPI_DISPLAY_OFFSET_Y,
+        .y_offset = MIPI_DISPLAY_OFFSET_X,
+    };
+
+    // 180°
+    c->rotation_info[2] = {
+        .dcs_address_mode = MIPI_DCS_ADDRESS_MODE_MIRROR_X | MIPI_DCS_ADDRESS_MODE_MIRROR_Y,
+        .width = MIPI_DISPLAY_WIDTH,
+        .height = MIPI_DISPLAY_HEIGHT,
+        .x_offset = MIPI_DISPLAY_OFFSET_X,
+        .y_offset = MIPI_DISPLAY_OFFSET_Y,
+    };
+
+    // 270°
+    c->rotation_info[3] = {
+        .dcs_address_mode = MIPI_DCS_ADDRESS_MODE_SWAP_XY | MIPI_DCS_ADDRESS_MODE_MIRROR_Y,
+        .width = MIPI_DISPLAY_HEIGHT,
+        .height = MIPI_DISPLAY_WIDTH,
+        .x_offset = MIPI_DISPLAY_OFFSET_Y,
+        .y_offset = MIPI_DISPLAY_OFFSET_X,
+    };
+
+    c->rotation_index = 0;
 
     return c;
 }
 
 void window_rotate_draw(void * void_context) {
+    hagl_color_t white = hagl_color(display, 255, 255, 255);
+    hagl_color_t red = hagl_color(display, 255, 0, 0);
+
+    hagl_clear(display);
+
+    hagl_draw_rectangle_xyxy(display, 0, 0, display_width-1, display_height-1, white);
+    hagl_draw_rectangle_xyxy(display, 1, 1, display_width-2, display_height-2, white);
+    hagl_draw_rectangle_xyxy(display, 2, 2, display_width-3, display_height-3, white);
+
+    int r;
+    wchar_t str[40];
+    int16_t x, y;
+
+    uint8_t const * font = font6x9;
+    int w=6;
+    int scale=4;
+
+    r = swprintf(str, sizeof(str), L"Top");
+    x = (display_width - (r * w * scale))/2;
+    y = 5;
+    hagl_put_text_scaled(display, str, x, y, red, scale, font);
+
     hagl_flush(display);
 }
 
-void set_screen_rotation(uint8_t mode) {
+void set_screen_rotation(window_rotate_context_t * c) {
+    uint8_t mode = c->rotation_info[c->rotation_index].dcs_address_mode;
+
+    hagl_clear(display);
+    hagl_flush(display);
+
     mipi_display_ioctl(MIPI_DCS_SET_ADDRESS_MODE, &mode, 1);
+
+    hagl_set_resolution(
+        display,
+        c->rotation_info[c->rotation_index].width,
+        c->rotation_info[c->rotation_index].height
+    );
+
+    mipi_display_set_xy_offset(
+        c->rotation_info[c->rotation_index].x_offset,
+        c->rotation_info[c->rotation_index].y_offset
+    );
+
+    display_width = c->rotation_info[c->rotation_index].width;
+    display_height = c->rotation_info[c->rotation_index].height;
 }
 
 void window_rotate_cw(void * void_context) {
     window_rotate_context_t * c = (window_rotate_context_t *)void_context;
-    c->rotation = (c->rotation + 1) % 4;
-    set_screen_rotation(c->dcs_address_mode[c->rotation]);
+    c->rotation_index = (c->rotation_index + 1) % 4;
+    set_screen_rotation(c);
 }
 
 void window_rotate_ccw(void * void_context) {
     window_rotate_context_t * c = (window_rotate_context_t *)void_context;
-    c->rotation = c->rotation - 1;
-    if (c->rotation == -1) c->rotation = 3;
-    set_screen_rotation(c->dcs_address_mode[c->rotation]);
+    c->rotation_index = c->rotation_index - 1;
+    if (c->rotation_index == -1) c->rotation_index = 3;
+    set_screen_rotation(c);
 }
 
 void window_rotate_click(void * void_context) {
