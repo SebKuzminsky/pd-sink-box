@@ -84,7 +84,7 @@ target_compile_definitions(
     #  HAGL_HAL_USE_TRIPLE_BUFFER
     #  HAGL_HAL_USE_DMA
     #  HAGL_HAL_DEBUG
-    HAGL_HAL_PIXEL_SIZE=2
+    HAGL_HAL_PIXEL_SIZE=1
 )
 
 target_include_directories(

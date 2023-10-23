@@ -61,7 +61,7 @@ void window_main_draw(void * void_context) {
 
     uint8_t const * font = font6x9;
     int w=6, h=9;
-    int scale=2;
+    int scale=4;
 
     hagl_color_t text_color;
 
@@ -222,6 +222,10 @@ static void window_main_menu_draw(void * void_context) {
 
         hagl_color_t text_color;
 
+        uint8_t const * font = font6x9;
+        int w=6, h=9;
+        int scale=2;
+
         text_color = white;
 
         if (i < 6) {
@@ -240,15 +244,15 @@ static void window_main_menu_draw(void * void_context) {
             }
         }
 
-        hagl_put_text(display, context->menu.items[i].text, x_pos, y_pos, text_color, font6x9);
+        hagl_put_text_scaled(display, context->menu.items[i].text, x_pos, y_pos, text_color, scale, font);
 
         if (i == context->menu.selected_item) {
             wchar_t cursor[] = L"<<<";
             size_t len = wcslen(context->menu.items[i].text);
-            hagl_put_text(display, cursor, x_pos+((len+1)*6), y_pos, red, font6x9);
+            hagl_put_text_scaled(display, cursor, x_pos+(len*w*scale), y_pos, red, scale, font);
         }
 
-        y_pos += 10;
+        y_pos += h * scale;
     }
 
     printf("\n");
@@ -416,7 +420,7 @@ void window_backlight_draw(void * void_context) {
 
     uint8_t const * font = font6x9;
     int w=6, h=9;
-    int scale=1;
+    int scale=2;
 
     hagl_color_t text_color = hagl_color(display, 255, 255, 255);
 
@@ -471,7 +475,7 @@ void window_info_draw(void * void_context) {
 
     uint8_t const * font = font6x9;
     int w=6, h=9;
-    int scale=1;
+    int scale=2;
 
     hagl_color_t text_color = hagl_color(display, 255, 255, 255);
 
