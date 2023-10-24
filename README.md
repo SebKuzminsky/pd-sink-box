@@ -197,11 +197,10 @@ in the mid-plate to pins 39 (VSYS) an 38 (GND) and solder them in place.
 
 ### Connect the rotary encoder knob to the Pico
 
-Solder the leads as follows.
+Solder the leads as follows:
 
-* The top of the square body of the rotary encoder will be about level
-with the tops of the screen standoffs, so the leads should be about 15
-mm long.
+* Size the leads so that the top of the square body of the rotary encoder
+is about level with the tops of the screen standoffs.
 
 ```
 Pico GPIO | Pico Pin | Knob pin
@@ -210,18 +209,13 @@ GPIO 0    | 1        | A
 GND       | 3        | C (center on 3-pin side)
 GPIO 1    | 2        | B
 ----------+----------+-----------
-GND       |          | either pin on 2-pin side, jumper to C (GND pin) on other side of knob
+GND       | 38       | either pin on 2-pin side
 GPIO 2    | 4        | other pin on 2-pin side
 ----------+----------+-----------
 ```
 
 * If the side with the three pins is facing you, with the shaft up,
 then the pins are A, C, B.
-
-* Connect one of the two ground pins on the knob to pin 3 (GND) on
-the Pico.  Jumper the two grounds together, but run the jumper wire
-as close to the encoder body as possible so it clears the micro-USB
-connector on the Pico.
 
 * When stripping the wire to solder to the pico, very short exposed
 conductors are sufficient, 2mm or so.
