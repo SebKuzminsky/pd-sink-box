@@ -1,5 +1,9 @@
 # Todo
 
+Move the screen GPIOs fmor 3, 4, 5 to something like 10, 11, 12 to make
+the wiring cleaner, and make it easier to reach the BOOTSEL button when
+everything is wired up.
+
 FIXME: The slot in the mid-plate is too narrow for the Schottky diode.
 That's fine if we put the diode close to the Mini360 instead of close to
 the Pico, or leave the diode on the Pico side and give it a longer tail.
