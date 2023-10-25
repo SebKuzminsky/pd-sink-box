@@ -82,9 +82,10 @@ M2.5 would have been more consistent.
 
 ## Design
 
-The enclosure is designed to make the device easier to assemble.  You can
-have all the the electronics assembled and mounted, but have the case
-off so everything is visible and accessible.
+The enclosure is designed to make the device easy to assemble and easy
+to work on.  You can have all the the electronics assembled and mounted,
+but have the case off so everything is visible and accessible (including
+the micro-USB connector on the Pico used to flash the firmware).
 
 ![lid off](pics/lid-off.png)
 
@@ -124,24 +125,60 @@ working great.
 
 ## Fasteners
 
+The enclosure is printed in pieces that screw together.  A clearance
+hole in one part aligns with a matching threaded hole in another part,
+and a screw holds them together.
+
+Most fasteners are M2, except for the flat-heads that hold the lid on
+the enclosure, those are M2.6.
+
+M2 clearance holes should be 2.200 mm diameter, and are specified so in
+the CAD model.  If your printer prints the holes undersized you may have
+to drill them out with a #44 drill.
+
+M2 threaded holes should be "pre-drilled" to 1.6 mm, and are specified
+so in the CAD model.  If your printer prints the holes undersized you
+may have to drill them out with a #52 drill.
+
+M2.6 clearance holes are 2.7 mm, drill to size with a #36 drill.
+
+M2.6 threaded holes are 2.26 mm, drill to size with a #43 drill.
+
+I've tried two options for the threaded holes:
+
+* M2 tapped holes and machine screws.  I tap gently by hand, being
+  careful to not shear the fragile standoffs on the weak layer lines.
+  This works well, but tapping all those holes is pretty labor intensive.
+
+* M2 self-tapping "wood" screws.  This is much quicker, as the holes don't
+  need to be tapped.  I just screw the screws in.  This also works well,
+  but has the slight downside that the tapered points of the self-tapping
+  screws take up some extra space.
+
 screen to lid to mid-plate:
-* 4x #4-40 flat head FIXME: switch to m2.5 for consistency?
+* 4x m2.6x6 self-tapping flat head
 
 pico to mid-plate:
-* 4x m2-0.40x6 button head or pan head
+* 4x m2x4 self-tapping button head
 
-mid-plate end cap to mid-plate:
-* 1x m2-0.40x4 button head
+mid-plate end-cap to mid-plate:
+* 1x m2x4 self-tapping button head
 
 mid-plate to base-plate:
-* 4x m2-0.40x6 button head or pan head
+* 4x m2x6 self-tapping button head
 
 husb238 to base-plate:
-* 2x m2-0.40x4 button head or pan head
+* 2x m2x6 self-tapping button head
 
-screw terminal to case: 2x SHCS m2-0.40x6
+screw terminal to case:
+* 2x m2x6 self-tapping button head
 
+total:
+* 4x m2.6x6 self-tapping flat head
 
+* 5x m2x4 self-tapping button head
+
+* 8x m2x6 self-tapping button head
 
 
 # Assembly
@@ -149,24 +186,44 @@ screw terminal to case: 2x SHCS m2-0.40x6
 
 ## Enclosure prep
 
-Drill the holes to be tapped M2 with #53 (0.059 inch, 1.499 mm).
-* 6x on the Base Plate
-* 5x on the Mid Plate
+
+### M2 threaded holes
+
+There are several holes that will take M2 threads:
+* 6x on the Base-Plate
+* 5x on the Mid-Plate
 * 2x on the Lid
 
-Tap them M2.  Only the HUSB238 holes are any challenge, since for
-aesthetic reasons they are blind.
+Drill these holes #52 (0.0635 inch, 1.613 mm).
 
-Drill the M2 clearance holes with #44 (0.086inch, 2.184mm).
-* 4x on the Mid Plate
-* 3x on the Mid Plate End Cap
+FIXME: or slightly bigger?  The printed plastic standoffs are quite
+fragile and the self-tapping screws apply enough force to
+crack the standoffs on the layer lines.  1.6 mm (#52) or 1.75 mm (#50).
+#51 (0.067 inch, 1.702 mm) works well.
 
-Drill the holes to be tapped #4-40, on the screen standoffs #43 (0.089
-inch, 2.261 mm).
 
-Tap the #4-40 holes on the screen standoffs.
+### M2 clearance holes
 
-Drill the #4-40 clearance holes in the lid #30 (0.129 inch, 3.264 mm).
+There are several holes that need to pass M2 screws with clearance:
+* 4x on the Mid-Plate
+* 3x on the Mid-Plate End-Cap
+
+Drill these #44 (0.086inch, 2.184mm).
+
+
+### M2.6 threaded holes
+
+There are several holes that need to take M2.6 threads:
+* 4x screen standoffs on the Mid-Plate
+
+Drill these holes #43 (0.089 inch, 2.261 mm).
+
+FIXME: or slightly bigger?
+
+
+### M2.6 clearance holes
+
+Drill the M2.6 clearance holes in the lid #30 (0.129 inch, 3.264 mm).
 
 
 ## Base plate
