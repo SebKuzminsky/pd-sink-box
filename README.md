@@ -190,10 +190,10 @@ about 3.3V after the diode.
 
 ## Mid plate
 
+Mount the mid-plate on its standoffs on the base-plate.
+
 Mount the Pico on its standoffs on the mid-plate.  The USB connector and
 BOOTSEL button should be on the side that's *not* covered by the display.
-
-Mount the mid-plate on its standoffs on the base-plate.
 
 Route the 3.3V and GND output lines from the Mini360 through the slots
 in the mid-plate to pins 39 (VSYS) an 38 (GND) and solder them in place.
@@ -203,8 +203,9 @@ in the mid-plate to pins 39 (VSYS) an 38 (GND) and solder them in place.
 
 Solder the leads as follows:
 
-* Size the leads so that the top of the square body of the rotary encoder
-is about level with the tops of the screen standoffs.
+* Size the leads so that the top of the square body of the rotary
+encoder (just under the washer & nut) is level with the tops of the
+screen standoffs.
 
 ```
 Pico GPIO | Pico Pin | Knob pin
@@ -259,8 +260,8 @@ PWM 4B (GPIO 9)    | 12       |  ->       | BL
 ```
 
 Note: We solder individual wires rather than using the connector on the
-screen, because the connector comes out the side and interferes with
-the case wall.
+screen because the connector comes out the side and interferes with the
+case wall.
 
 
 ## Lid
