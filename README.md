@@ -253,9 +253,9 @@ Pico Name          | Pico Pin | Direction | Display
 GND                | 23       | <->       | GND
 spi1 TX (GPIO 15)  | 20       |  ->       | DIN
 spi1 SCK (GPIO 14) | 19       |  ->       | CLK
-GPIO 3             | 5        |  ->       | CS
-GPIO 5             | 7        |  ->       | D/C
-GPIO 4             | 6        |  ->       | RST
+GPIO 12            | 16       |  ->       | CS
+GPIO 11            | 15       |  ->       | D/C
+GPIO 10            | 14       |  ->       | RST
 PWM 4B (GPIO 9)    | 12       |  ->       | BL
 ```
 
