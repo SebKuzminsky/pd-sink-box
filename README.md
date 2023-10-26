@@ -1,11 +1,15 @@
 # Introduction
 
+![overview picture](pics/intro.png)
+
 This device provides power from a USB PD source (such as a cheap modern
 phone charger) to a pair of screw terminals, and lets the user select
 the voltage and max current from among what the PD source offers.
 
 USB PD sources typically offer one or more voltages (5V, 9V, 12V, 15V,
 18V, and 20V), each with its own current limit.
+
+![menu picture](pics/menu.png)
 
 
 # Design
