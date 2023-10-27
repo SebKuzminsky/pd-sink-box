@@ -85,6 +85,8 @@ The enclosure is designed to make the device easier to assemble.  You can
 have all the the electronics assembled and mounted, but have the case
 off so everything is visible and accessible.
 
+![lid off](pics/lid-off.png)
+
 The stack looks like this, starting at the bottom:
 
 1.  The "base-plate" holds the HUSB238 and Mini360.  It has standoffs
