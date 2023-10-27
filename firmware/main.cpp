@@ -289,12 +289,13 @@ static void window_menu_draw(void * void_context) {
         int scale=2;
 
         if (context->menu.items[i].enabled) {
-            text_color = white;
+            if ((i < 6) && (context->pdos[i].id == context->current_pdo)) {
+                text_color = green;
+            } else {
+                text_color = white;
+            }
         } else {
             text_color = gray;
-        }
-        if ((i < 6) && (context->pdos[i].id == context->current_pdo)) {
-            text_color = green;
         }
 
         hagl_put_text_scaled(display, context->menu.items[i].text, x_pos, y_pos, text_color, scale, font);
@@ -342,12 +343,22 @@ void window_menu_selected(void * void_context) {
         }
     }
 
-    // By default we select the lowest-voltage PDO.  If there are no
-    // PDOs available, select the first non-PDO menu item.
+    // By default we select the currently active PDO.  If that's not
+    // available we select the lowest-voltage available PDO.  If there
+    // are no PDOs available, select the first non-PDO menu item.
+    for (int i = 0; i < 6; ++i) {
+        if (
+            (context->pdos[i].id == context->current_pdo)
+            && (context->menu.items[i].enabled)
+        ) {
+            context->menu.selected_item = i;
+            return;
+        }
+    }
     for (int i = 0; i < context->menu.num_items; ++i) {
         if (context->menu.items[i].enabled) {
             context->menu.selected_item = i;
-            break;
+            return;
         }
     }
 }
