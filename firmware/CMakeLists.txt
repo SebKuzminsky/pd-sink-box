@@ -96,7 +96,6 @@ target_include_directories(
 target_link_libraries(
     ${PROGRAM_NAME}
     pico_stdlib
-    hardware_adc
     hardware_i2c
     hardware_spi
     hardware_pwm
