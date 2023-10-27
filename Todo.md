@@ -1,19 +1,11 @@
 # Todo
 
-Move the screen GPIOs fmor 3, 4, 5 to something like 10, 11, 12 to make
-the wiring cleaner, and make it easier to reach the BOOTSEL button when
-everything is wired up.
-
-FIXME: The slot in the mid-plate is too narrow for the Schottky diode.
-That's fine if we put the diode close to the Mini360 instead of close to
-the Pico, or leave the diode on the Pico side and give it a longer tail.
+handle menus that don't fit on the screen
 
 FIXME: The screw terminal needs to be attached to the internal wires
 and screwed to the enclosure after the lid/case is put on the stack.
 Maybe instead of soldering the internal wires to the screw terminal I'll
 try crimped female spade connectors?
-
-FIXME: screen rotation changes the width/height, but the drawing doesn't compensate
 
 FIXME: log scale for dimming the backlight
 

@@ -177,10 +177,11 @@ screw terminal and one pair short to go to the Mini360.
 Solder the short power leads from the HUSB238 to the input points on
 the Mini360.
 
-Solder power output leads to the Mini360, including a Schottky diode on
-the +VOUT line, but *do not* connect them anywhere yet.  Note: the diode
-does not fit through the slot in the mid-plate, so ensure there's an
-adequate lead on the Pico side.
+Solder power output leads to the Mini360, including a Schottky diode
+on the +VOUT line, but *do not* connect them anywhere yet.  Note: the
+diode does not fit through the slot in the mid-plate, so ensure there's
+an adequate lead on the Pico side, and ensure that it's well covered by
+shrink tubing.
 
 Mount the HUSB238 and Mini360 to the base-plate.
 
