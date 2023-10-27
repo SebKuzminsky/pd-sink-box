@@ -103,7 +103,7 @@ static uint16_t backlight_pwm_slice;
 
 typedef enum {
     WINDOW_MAIN,
-    WINDOW_MAIN_MENU,
+    WINDOW_MENU,
     WINDOW_ROTATE,
     WINDOW_BACKLIGHT,
     WINDOW_INFO
@@ -183,7 +183,7 @@ void window_main_draw(void * void_context) {
 }
 
 void window_main_any_interaction(void * void_context) {
-    hmi_set_active_window(WINDOW_MAIN_MENU);
+    hmi_set_active_window(WINDOW_MENU);
 }
 
 
@@ -207,11 +207,11 @@ typedef struct {
     husb238_pdo_t pdos[6];
     int current_pdo;       // this is the SRC_PDO identifier
     menu_t menu;
-} window_main_menu_context_t;
+} window_menu_context_t;
 
 
-static void * window_main_menu_init(void) {
-    window_main_menu_context_t * context = (window_main_menu_context_t*)calloc(1, sizeof(window_main_menu_context_t));
+static void * window_menu_init(void) {
+    window_menu_context_t * context = (window_menu_context_t*)calloc(1, sizeof(window_menu_context_t));
     if (context == nullptr) {
         printf("out of memory\n");
         return nullptr;
@@ -267,8 +267,8 @@ static void * window_main_menu_init(void) {
 }
 
 
-static void window_main_menu_draw(void * void_context) {
-    window_main_menu_context_t * context = (window_main_menu_context_t*)void_context;
+static void window_menu_draw(void * void_context) {
+    window_menu_context_t * context = (window_menu_context_t*)void_context;
 
     int x_pos = 5;
     int y_pos = 5;
@@ -326,8 +326,8 @@ static void window_main_menu_draw(void * void_context) {
 
 // The Main Menu window was selected, re-read PDOs and regenerate the
 // menu items enabled/disabled state.
-void window_main_menu_selected(void * void_context) {
-    window_main_menu_context_t * context = (window_main_menu_context_t *)void_context;
+void window_menu_selected(void * void_context) {
+    window_menu_context_t * context = (window_menu_context_t *)void_context;
     int r;
 
     r = husb238_get_pdos(i2c, context->pdos);
@@ -364,8 +364,8 @@ void window_main_menu_selected(void * void_context) {
 }
 
 
-void window_main_menu_cw(void * void_context) {
-    window_main_menu_context_t * context = (window_main_menu_context_t*)void_context;
+void window_menu_cw(void * void_context) {
+    window_menu_context_t * context = (window_menu_context_t*)void_context;
 
     context->menu.selected_item = (context->menu.selected_item + 1) % context->menu.num_items;
     while (! context->menu.items[context->menu.selected_item].enabled) {
@@ -374,8 +374,8 @@ void window_main_menu_cw(void * void_context) {
 }
 
 
-void window_main_menu_ccw(void * void_context) {
-    window_main_menu_context_t * context = (window_main_menu_context_t*)void_context;
+void window_menu_ccw(void * void_context) {
+    window_menu_context_t * context = (window_menu_context_t*)void_context;
 
     context->menu.selected_item -= 1;
     if (context->menu.selected_item == -1) {
@@ -389,8 +389,8 @@ void window_main_menu_ccw(void * void_context) {
     }
 }
 
-void window_main_menu_click(void * void_context) {
-    window_main_menu_context_t * context = (window_main_menu_context_t*)void_context;
+void window_menu_click(void * void_context) {
+    window_menu_context_t * context = (window_menu_context_t*)void_context;
 
     if (context->menu.selected_item == 6) {
         hmi_set_active_window(WINDOW_ROTATE);
@@ -679,13 +679,13 @@ static hmi_window_t windows[] = {
     },
 
     {
-        .id = WINDOW_MAIN_MENU,
-        .init = &window_main_menu_init,
-        .draw = &window_main_menu_draw,
-        .selected = &window_main_menu_selected,
-        .event_cw = &window_main_menu_cw,
-        .event_ccw = &window_main_menu_ccw,
-        .event_click = &window_main_menu_click
+        .id = WINDOW_MENU,
+        .init = &window_menu_init,
+        .draw = &window_menu_draw,
+        .selected = &window_menu_selected,
+        .event_cw = &window_menu_cw,
+        .event_ccw = &window_menu_ccw,
+        .event_click = &window_menu_click
     },
 
     {
