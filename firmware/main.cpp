@@ -309,7 +309,6 @@ static void window_menu_draw(void * void_context) {
         y_pos += h * scale;
     }
 
-    printf("\n");
     hagl_flush(display);
 }
 
