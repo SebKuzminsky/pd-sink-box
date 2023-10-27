@@ -426,6 +426,29 @@ typedef struct {
     int rotation_index;
 } window_rotate_context_t;
 
+void set_screen_rotation(window_rotate_context_t * c) {
+    uint8_t mode = c->rotation_info[c->rotation_index].dcs_address_mode;
+
+    hagl_clear(display);
+    hagl_flush(display);
+
+    mipi_display_ioctl(MIPI_DCS_SET_ADDRESS_MODE, &mode, 1);
+
+    hagl_set_resolution(
+        display,
+        c->rotation_info[c->rotation_index].width,
+        c->rotation_info[c->rotation_index].height
+    );
+
+    mipi_display_set_xy_offset(
+        c->rotation_info[c->rotation_index].x_offset,
+        c->rotation_info[c->rotation_index].y_offset
+    );
+
+    display_width = c->rotation_info[c->rotation_index].width;
+    display_height = c->rotation_info[c->rotation_index].height;
+}
+
 void * window_rotate_init(void) {
     window_rotate_context_t * c = (window_rotate_context_t *)calloc(1, sizeof(window_rotate_context_t));
     if (c == nullptr) {
@@ -512,29 +535,6 @@ void window_rotate_draw(void * void_context) {
     hagl_put_text_scaled(display, str, x, y, red, scale, font);
 
     hagl_flush(display);
-}
-
-void set_screen_rotation(window_rotate_context_t * c) {
-    uint8_t mode = c->rotation_info[c->rotation_index].dcs_address_mode;
-
-    hagl_clear(display);
-    hagl_flush(display);
-
-    mipi_display_ioctl(MIPI_DCS_SET_ADDRESS_MODE, &mode, 1);
-
-    hagl_set_resolution(
-        display,
-        c->rotation_info[c->rotation_index].width,
-        c->rotation_info[c->rotation_index].height
-    );
-
-    mipi_display_set_xy_offset(
-        c->rotation_info[c->rotation_index].x_offset,
-        c->rotation_info[c->rotation_index].y_offset
-    );
-
-    display_width = c->rotation_info[c->rotation_index].width;
-    display_height = c->rotation_info[c->rotation_index].height;
 }
 
 void window_rotate_cw(void * void_context) {
