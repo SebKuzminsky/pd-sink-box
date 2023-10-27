@@ -278,11 +278,9 @@ static void window_menu_draw(void * void_context) {
     context->current_pdo = husb238_get_current_pdo(i2c);
 
     for (int i = 0; i < context->menu.num_items; ++i) {
-
         hagl_color_t white = hagl_color(display, 255, 255, 255);
         hagl_color_t gray = hagl_color(display, 150, 150, 150);
         hagl_color_t green = hagl_color(display, 0, 255, 0);
-        hagl_color_t red = hagl_color(display, 255, 0, 0);
 
         hagl_color_t text_color;
 
@@ -290,27 +288,19 @@ static void window_menu_draw(void * void_context) {
         int w=6, h=9;
         int scale=2;
 
-        text_color = white;
-
-        if (i < 6) {
-            // Print PDOs to stdout for debugging.
-            if (i == context->menu.selected_item) printf("(");
-            if (context->pdos[i].id == context->current_pdo) printf("[");
-            printf("%dV/%0.2fA", (int)context->pdos[i].volts, context->pdos[i].max_current);
-            if (context->pdos[i].id == context->current_pdo) printf("]");
-            if (i == context->menu.selected_item) printf(")");
-            printf(" ");
-
-            if (context->pdos[i].max_current <= 0) {
-                text_color = gray;
-            } else if (context->pdos[i].id == context->current_pdo) {
-                text_color = green;
-            }
+        if (context->menu.items[i].enabled) {
+            text_color = white;
+        } else {
+            text_color = gray;
+        }
+        if ((i < 6) && (context->pdos[i].id == context->current_pdo)) {
+            text_color = green;
         }
 
         hagl_put_text_scaled(display, context->menu.items[i].text, x_pos, y_pos, text_color, scale, font);
 
         if (i == context->menu.selected_item) {
+            hagl_color_t red = hagl_color(display, 255, 0, 0);
             wchar_t cursor[] = L"<<<";
             size_t len = wcslen(context->menu.items[i].text);
             hagl_put_text_scaled(display, cursor, x_pos+(len*w*scale), y_pos, red, scale, font);
