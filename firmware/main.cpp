@@ -188,7 +188,7 @@ void window_main_any_interaction(void * void_context) {
 
 
 //
-// Main Menu window
+// Menu window
 //
 
 typedef struct {
@@ -224,14 +224,14 @@ static void * window_menu_init(void) {
         return nullptr;
     }
 
-    // The first 6 Main Menu items are the PDOs.  Because you can run
-    // this device without USB-PD connected (by powering the Pico via
-    // its own USB Micro-B connector) we re-read the PDOs each time the
-    // user selects the Main Menu, and we re-sprintf the menu items
-    // based on the max currents detected at that time (and set the
-    // enabled/disabled state of each PDO).
+    // The first 6 Menu items are the PDOs.  Because you can run this
+    // device without USB-PD connected (by powering the Pico via its
+    // own USB Micro-B connector) we re-read the PDOs each time the user
+    // selects the Menu, and we re-sprintf the menu items based on the
+    // max currents detected at that time (and set the enabled/disabled
+    // state of each PDO).
 
-    // The 7th Main Menu item is the Rotate screen.
+    // The 7th Menu item is the Rotate screen.
     swprintf(
         context->menu.items[6].text,
         sizeof(context->menu.items[6].text),
@@ -239,7 +239,7 @@ static void * window_menu_init(void) {
     );
     context->menu.items[6].enabled = true;
 
-    // The 8th Main Menu item is the Backlight screen.
+    // The 8th Menu item is the Backlight screen.
     swprintf(
         context->menu.items[7].text,
         sizeof(context->menu.items[7].text),
@@ -247,7 +247,7 @@ static void * window_menu_init(void) {
     );
     context->menu.items[7].enabled = true;
 
-    // The 9th Main Menu item is the Info screen.
+    // The 9th Menu item is the Info screen.
     swprintf(
         context->menu.items[8].text,
         sizeof(context->menu.items[8].text),
@@ -255,7 +255,7 @@ static void * window_menu_init(void) {
     );
     context->menu.items[8].enabled = true;
 
-    // The 10th and final Main Menu item is Back, to go back to the main window.
+    // The 10th and final Menu item is Back, to go back to the main window.
     swprintf(
         context->menu.items[9].text,
         sizeof(context->menu.items[9].text),
@@ -313,7 +313,7 @@ static void window_menu_draw(void * void_context) {
 }
 
 
-// The Main Menu window was selected, re-read PDOs and regenerate the
+// The Menu window was selected, re-read PDOs and regenerate the
 // menu items enabled/disabled state.
 void window_menu_selected(void * void_context) {
     window_menu_context_t * context = (window_menu_context_t *)void_context;
