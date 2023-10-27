@@ -1,5 +1,3 @@
-#include <cstdio>
-
 #include "hmi.h"
 #include "encoder.h"
 #include "button.pio.h"
@@ -48,13 +46,11 @@ void hmi_run(void) {
 
         r = encoder_scan();
         if (r == 1) {
-            printf("cw\n");
             if (hmi_windows[hmi_active_window].event_cw != nullptr) {
                 hmi_windows[hmi_active_window].event_cw(hmi_windows[hmi_active_window].context);
                 need_redraw = true;
             }
         } else if (r == -1) {
-            printf("ccw\n");
             if (hmi_windows[hmi_active_window].event_ccw != nullptr) {
                 hmi_windows[hmi_active_window].event_ccw(hmi_windows[hmi_active_window].context);
                 need_redraw = true;
@@ -64,7 +60,6 @@ void hmi_run(void) {
         uint32_t button_state;
         if (button_get_state(button_state)) {
             if (button_state == 0) {
-                printf("click!\n");
                 if (hmi_windows[hmi_active_window].event_click != nullptr) {
                     hmi_windows[hmi_active_window].event_click(hmi_windows[hmi_active_window].context);
                     need_redraw = true;
