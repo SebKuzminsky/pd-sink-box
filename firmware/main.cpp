@@ -508,6 +508,8 @@ void * window_rotate_init(void) {
         c->rotation_index = 3;
     }
 
+    set_screen_rotation(c);
+
     return c;
 }
 
