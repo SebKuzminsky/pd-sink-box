@@ -99,6 +99,8 @@ target_link_libraries(
     hardware_i2c
     hardware_spi
     hardware_pwm
+    hardware_flash
+    hardware_sync
     hagl
     hagl_hal
     rp2040_rotary_encoder

@@ -6,6 +6,8 @@
 #include <hardware/i2c.h>
 #include <hardware/spi.h>
 #include <hardware/pwm.h>
+#include <hardware/flash.h>
+#include <hardware/sync.h>
 
 #include <pico/stdlib.h>
 
@@ -25,6 +27,65 @@
 #ifdef RASPBERRYPI_PICO_W
 #include "pico/cyw43_arch.h"
 #endif
+
+
+//
+// We store some config variables in flash and load them back in at
+// boot time.
+//
+// The flash is memory-mapped into the RP2040 address space at XIP_BASE.
+// We store our stuff at offset 256kB in the flash.
+//
+
+#define FLASH_OFFSET ((1024 + 512) * 1024)
+
+// This is the data structure we store in flash.
+static struct {
+    uint8_t cookie;
+    int backlight_duty_cycle;
+    int screen_rotation_index;
+    uint8_t checksum;
+} flash_data;
+
+static void write_flash(void) {
+    // Cheesiest checksum ever.
+    uint8_t checksum = 0;
+    flash_data.cookie = 0x55;
+    flash_data.checksum = 0;
+    for (uint i = 0; i < sizeof(flash_data); ++i) {
+        checksum ^= ((uint8_t *)(&flash_data))[i];
+    }
+    flash_data.checksum = checksum;
+
+    uint32_t ints = save_and_disable_interrupts();
+
+    // Erase one sector of the flash.
+    flash_range_erase(FLASH_OFFSET, FLASH_SECTOR_SIZE);
+
+    // Write our data to the flash.
+    flash_range_program(FLASH_OFFSET, (uint8_t const *)(&flash_data), FLASH_PAGE_SIZE);
+
+    restore_interrupts(ints);
+}
+
+static bool read_flash(void) {
+    uint8_t const * flash_mem_ptr = (uint8_t const *)(XIP_BASE + FLASH_OFFSET);
+
+    memcpy(&flash_data, flash_mem_ptr, sizeof(flash_data));
+
+    uint8_t checksum = 0;
+    for (uint i = 0; i < sizeof(flash_data); ++i) {
+        checksum ^= ((uint8_t *)(&flash_data))[i];
+    }
+
+    if ((flash_data.cookie == 0x55) && (checksum == 0)) {
+        // Valid flash.
+        return true;
+    }
+
+    // Invalid flash, caller will initialize flash_data to sane defaults.
+    return false;
+}
 
 
 static i2c_inst_t * i2c;
@@ -417,7 +478,12 @@ void * window_rotate_init(void) {
         .y_offset = MIPI_DISPLAY_OFFSET_X,
     };
 
-    c->rotation_index = 0;
+    c->rotation_index = flash_data.screen_rotation_index;
+    if (c->rotation_index < 0) {
+        c->rotation_index = 0;
+    } else if (c->rotation_index > 3) {
+        c->rotation_index = 3;
+    }
 
     return c;
 }
@@ -485,6 +551,9 @@ void window_rotate_ccw(void * void_context) {
 }
 
 void window_rotate_click(void * void_context) {
+    window_rotate_context_t * c = (window_rotate_context_t *)void_context;
+    flash_data.screen_rotation_index = c->rotation_index;
+    write_flash();  // remember which screen orientation the user likes
     hmi_set_active_window(WINDOW_MAIN);
 }
 
@@ -540,6 +609,8 @@ void window_backlight_ccw(void * void_context) {
 
 
 void window_backlight_click(void * void_context) {
+    flash_data.backlight_duty_cycle = backlight_duty_cycle;
+    write_flash();  // remember which backlight brightness the user likes
     hmi_set_active_window(WINDOW_MAIN);
 }
 
@@ -654,6 +725,19 @@ static hmi_window_t windows[] = {
 int main() {
     stdio_init_all();
     // sleep_ms(3000);
+
+    if (!read_flash()) {
+        // Invalid flash, initialize to sane defaults.
+        flash_data.backlight_duty_cycle = backlight_duty_cycle_max;
+        flash_data.screen_rotation_index = 0;
+    }
+
+    backlight_duty_cycle = flash_data.backlight_duty_cycle;
+    if (backlight_duty_cycle > backlight_duty_cycle_max) {
+        backlight_duty_cycle = backlight_duty_cycle_max;
+    } else if (backlight_duty_cycle < 0) {
+        backlight_duty_cycle = 0;
+    }
 
     display = hagl_init();
 
