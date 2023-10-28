@@ -1,3 +1,5 @@
+#include "pico/time.h"
+
 #include "hmi.h"
 #include "encoder.h"
 #include "button.pio.h"
@@ -37,11 +39,23 @@ void hmi_set_active_window(int id) {
 void hmi_run(void) {
     int r;
     bool need_redraw = true;
+    absolute_time_t next_redraw = at_the_end_of_time;
 
     while (true) {
+        if (!is_at_the_end_of_time(next_redraw)) {
+            if (absolute_time_diff_us(get_absolute_time(), next_redraw) < 0) {
+                need_redraw = true;
+            }
+        }
         if (need_redraw) {
+            uint32_t ms_until_redraw;
             need_redraw = false;
-            hmi_windows[hmi_active_window].draw(hmi_windows[hmi_active_window].context);
+            ms_until_redraw = hmi_windows[hmi_active_window].draw(hmi_windows[hmi_active_window].context);
+            if (ms_until_redraw == 0) {
+                next_redraw = at_the_end_of_time;
+            } else {
+                next_redraw = make_timeout_time_ms(ms_until_redraw);
+            }
         }
 
         r = encoder_scan();

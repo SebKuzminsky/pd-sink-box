@@ -19,8 +19,10 @@ typedef struct {
     // to every future function call of this window.
     void * (*init)(void);
 
-    // `draw()` draws the window.
-    void (*draw)(void * context);
+    // `draw()` draws the window.  Returns the number of milliseconds
+    // until it wants to get called again to redraw the screen, or 0 for
+    // "wait until there's a user interaction".
+    uint32_t (*draw)(void * context);
 
     // `selected()` is called when the window becomes active (i.e. when
     // someone calls `hmi_set_active_window()` on it), before the first

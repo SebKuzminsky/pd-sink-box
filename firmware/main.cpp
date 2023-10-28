@@ -115,8 +115,9 @@ typedef enum {
 // Main window
 //
 
-void window_main_draw(void * void_context) {
+static uint32_t window_main_draw(void * void_context) {
     int r;
+    int redraw_wait;
 
     int volts;
     float max_current;
@@ -152,8 +153,15 @@ void window_main_draw(void * void_context) {
         hagl_put_text_scaled(display, str, x, y, text_color, scale, font);
 
         hagl_flush(display);
-        return;
+
+        // The Pico is running off its own USB power, but the HUSB238
+        // does not have power.  Re-check and re-draw soon.
+        return 100;
     }
+
+    // Assuming we get good communication with the HUSB238, we won't
+    // need to redraw again.
+    redraw_wait = 0;
 
     r = husb238_get_contract(i2c, volts, max_current);
     if (r != PICO_OK) {
@@ -161,6 +169,7 @@ void window_main_draw(void * void_context) {
         printf("error reading PD contract from HUSB238\n");
         volts = -1;
         max_current = -1.0;
+        redraw_wait = 100;  // Failed to read from HUSB238, re-try soon.
     }
     printf("(%d comm errors) PD contract: %dV %4.2fA\n", i2c_comm_errors, volts, max_current);
 
@@ -170,6 +179,7 @@ void window_main_draw(void * void_context) {
     } else {
         // No PD contract established, sad grayish text.
         text_color = hagl_color(display, 150, 150, 150);
+        redraw_wait = 100;  // HUSB238 i2c comm error or HUSB238 reports "no contract", re-try soon.
     }
 
     r = swprintf(str, sizeof(str), L"%dV", volts);
@@ -183,9 +193,11 @@ void window_main_draw(void * void_context) {
     hagl_put_text_scaled(display, str, x, y, text_color, scale, font6x9);
 
     hagl_flush(display);
+
+    return redraw_wait;
 }
 
-void window_main_any_interaction(void * void_context) {
+static void window_main_any_interaction(void * void_context) {
     hmi_set_active_window(WINDOW_MENU);
 }
 
@@ -287,7 +299,7 @@ static void * window_menu_init(void) {
 // near the selected item, and the rest is off-screen and invisible.
 //
 
-static void window_menu_draw(void * void_context) {
+static uint32_t window_menu_draw(void * void_context) {
     window_menu_context_t * context = (window_menu_context_t*)void_context;
 
     uint8_t const * font = font6x9;
@@ -358,12 +370,14 @@ static void window_menu_draw(void * void_context) {
     }
 
     hagl_flush(display);
+
+    return 0;
 }
 
 
 // The Menu window was selected, re-read PDOs and regenerate the
 // menu items enabled/disabled state.
-void window_menu_selected(void * void_context) {
+static void window_menu_selected(void * void_context) {
     window_menu_context_t * context = (window_menu_context_t *)void_context;
     int r;
 
@@ -412,7 +426,7 @@ void window_menu_selected(void * void_context) {
 }
 
 
-void window_menu_cw(void * void_context) {
+static void window_menu_cw(void * void_context) {
     window_menu_context_t * context = (window_menu_context_t*)void_context;
 
     context->menu.selected_item = (context->menu.selected_item + 1) % context->menu.num_items;
@@ -422,7 +436,7 @@ void window_menu_cw(void * void_context) {
 }
 
 
-void window_menu_ccw(void * void_context) {
+static void window_menu_ccw(void * void_context) {
     window_menu_context_t * context = (window_menu_context_t*)void_context;
 
     context->menu.selected_item -= 1;
@@ -437,7 +451,7 @@ void window_menu_ccw(void * void_context) {
     }
 }
 
-void window_menu_click(void * void_context) {
+static void window_menu_click(void * void_context) {
     window_menu_context_t * context = (window_menu_context_t*)void_context;
 
     if (context->menu.selected_item == 6) {
@@ -484,7 +498,7 @@ typedef struct {
     int rotation_index;
 } window_rotate_context_t;
 
-void set_screen_rotation(window_rotate_context_t * c) {
+static void set_screen_rotation(window_rotate_context_t * c) {
     uint8_t mode = c->rotation_info[c->rotation_index].dcs_address_mode;
 
     hagl_clear(display);
@@ -507,7 +521,7 @@ void set_screen_rotation(window_rotate_context_t * c) {
     display_height = c->rotation_info[c->rotation_index].height;
 }
 
-void * window_rotate_init(void) {
+static void * window_rotate_init(void) {
     window_rotate_context_t * c = (window_rotate_context_t *)calloc(1, sizeof(window_rotate_context_t));
     if (c == nullptr) {
         printf("out of memory\n");
@@ -571,7 +585,7 @@ void * window_rotate_init(void) {
     return c;
 }
 
-void window_rotate_draw(void * void_context) {
+static uint32_t window_rotate_draw(void * void_context) {
     hagl_color_t white = hagl_color(display, 255, 255, 255);
     hagl_color_t red = hagl_color(display, 255, 0, 0);
 
@@ -595,22 +609,23 @@ void window_rotate_draw(void * void_context) {
     hagl_put_text_scaled(display, str, x, y, red, scale, font);
 
     hagl_flush(display);
+    return 0;
 }
 
-void window_rotate_cw(void * void_context) {
+static void window_rotate_cw(void * void_context) {
     window_rotate_context_t * c = (window_rotate_context_t *)void_context;
     c->rotation_index = (c->rotation_index + 1) % 4;
     set_screen_rotation(c);
 }
 
-void window_rotate_ccw(void * void_context) {
+static void window_rotate_ccw(void * void_context) {
     window_rotate_context_t * c = (window_rotate_context_t *)void_context;
     c->rotation_index = c->rotation_index - 1;
     if (c->rotation_index == -1) c->rotation_index = 3;
     set_screen_rotation(c);
 }
 
-void window_rotate_click(void * void_context) {
+static void window_rotate_click(void * void_context) {
     window_rotate_context_t * c = (window_rotate_context_t *)void_context;
     flash_data.screen_rotation_index = c->rotation_index;
     write_flash();  // remember which screen orientation the user likes
@@ -622,7 +637,7 @@ void window_rotate_click(void * void_context) {
 // Backlight window
 //
 
-void window_backlight_draw(void * void_context) {
+static uint32_t window_backlight_draw(void * void_context) {
     int r;
 
     wchar_t str[40];
@@ -647,10 +662,11 @@ void window_backlight_draw(void * void_context) {
     hagl_put_text_scaled(display, str, x, y, text_color, scale, font);
 
     hagl_flush(display);
+
+    return 0;
 }
 
-
-void window_backlight_cw(void * void_context) {
+static void window_backlight_cw(void * void_context) {
     backlight_duty_cycle += backlight_duty_cycle_delta;
     if (backlight_duty_cycle > backlight_duty_cycle_max) {
         backlight_duty_cycle = backlight_duty_cycle_max;
@@ -658,8 +674,7 @@ void window_backlight_cw(void * void_context) {
     pwm_set_chan_level(backlight_pwm_slice, PWM_CHAN_B, backlight_duty_cycle);
 }
 
-
-void window_backlight_ccw(void * void_context) {
+static void window_backlight_ccw(void * void_context) {
     backlight_duty_cycle -= backlight_duty_cycle_delta;
     if (backlight_duty_cycle < 0) {
         backlight_duty_cycle = 0;
@@ -667,8 +682,7 @@ void window_backlight_ccw(void * void_context) {
     pwm_set_chan_level(backlight_pwm_slice, PWM_CHAN_B, backlight_duty_cycle);
 }
 
-
-void window_backlight_click(void * void_context) {
+static void window_backlight_click(void * void_context) {
     flash_data.backlight_duty_cycle = backlight_duty_cycle;
     write_flash();  // remember which backlight brightness the user likes
     hmi_set_active_window(WINDOW_MAIN);
@@ -679,7 +693,7 @@ void window_backlight_click(void * void_context) {
 // Info window
 //
 
-void window_info_draw(void * void_context) {
+static uint32_t window_info_draw(void * void_context) {
     int r;
 
     wchar_t str[40];
@@ -718,9 +732,11 @@ void window_info_draw(void * void_context) {
     }
 
     hagl_flush(display);
+
+    return 0;
 }
 
-void window_info_any_interaction(void * void_context) {
+static void window_info_any_interaction(void * void_context) {
     hmi_set_active_window(WINDOW_MAIN);
 }
 
