@@ -179,27 +179,40 @@ screw terminal and one pair short to go to the Mini360.
 Solder the short power leads from the HUSB238 to the input points on
 the Mini360.
 
-Solder power output leads to the Mini360, including a Schottky diode
-on the +VOUT line, but *do not* connect them anywhere yet.  Note: the
-diode does not fit through the slot in the mid-plate, so ensure there's
-an adequate lead on the Pico side, and ensure that it's well covered by
-shrink tubing.
+Solder a ground wire to the Mini360 OUT- pad.  Solder a Schottky diode to
+the OUT+ pad, but *do not* connect it anywhere yet.  Note: the diode does
+not fit through the slot in the mid-plate, so ensure there's an adequate
+lead on the Pico side, and ensure that it's well covered by shrink tubing.
 
 Mount the HUSB238 and Mini360 to the base-plate.
 
 Connect the HUSB238 to power and adjust the pot on the Mini360 to get
-about 3.3V after the diode.
+about 3.3V after the diode (any voltage in the range ~2.3V to ~5.5V will
+work well).
 
 
 ## Mid plate
 
-Mount the mid-plate on its standoffs on the base-plate.
+Mount the mid-plate on its standoffs on the base-plate.  The standoffs
+for the screen are on the same side of the device as the HUSB238.
 
 Mount the Pico on its standoffs on the mid-plate.  The USB connector and
 BOOTSEL button should be on the side that's *not* covered by the display.
 
 Route the 3.3V and GND output lines from the Mini360 through the slots
 in the mid-plate to pins 39 (VSYS) an 38 (GND) and solder them in place.
+
+
+### Connect the HUSB238 to the Pico
+
+Solder the I2C leads as follows:
+
+```
+Name | Pico pin | Direction | HUSB238 | Color
+-----+----------+-----------+---------+-------
+SDA  | 21       | <->       | SDA     | blue
+SCL  | 22       |  ->       | SCL     | yellow
+```
 
 
 ### Connect the rotary encoder knob to the Pico
@@ -227,18 +240,6 @@ then the pins are A, C, B.
 
 * When stripping the wire to solder to the pico, very short exposed
 conductors are sufficient, 2mm or so.
-
-
-### Connect the HUSB238 to the Pico
-
-Solder the I2C leads as follows:
-
-```
-Name | Pico pin | Direction | HUSB238 | Color
------+---------+-----------+---------+-------
-SDA  | 21       | <->       | SDA     | blue
-SCL  | 22       |  ->       | SCL     | yellow
-```
 
 
 ### Connect the display to the PICO
