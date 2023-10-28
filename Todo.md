@@ -16,6 +16,8 @@ hmm, redrawing the main screen all the time crashes it
     looks like maybe bit flips in the communications?  sometimes i'd
     read 9V 2.25A, unlike the normal 9v 2.00A
 
+    maybe add retries in all the right places :-(
+
 Try switching from a Raspberry Pi Pico to a Waveshare RP2040 Zero, and
 moving the screw terminal up one floor, and making the enclosure shorter.
 
