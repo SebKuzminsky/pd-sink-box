@@ -207,7 +207,11 @@ typedef struct {
     husb238_pdo_t pdos[6];
     int current_pdo;       // this is the SRC_PDO identifier
     menu_t menu;
+    int y_start;
 } window_menu_context_t;
+
+// This is how far from the screen edge the Menu starts or ends.
+#define MENU_Y_MARGIN 5
 
 
 static void * window_menu_init(void) {
@@ -216,6 +220,8 @@ static void * window_menu_init(void) {
         printf("out of memory\n");
         return nullptr;
     }
+
+    context->y_start = MENU_Y_MARGIN;
 
     context->menu.num_items = 10;  // 6 PDOs, Rotate, Backlight, Info, Back
     context->menu.items = (menu_item_t*)calloc(context->menu.num_items, sizeof(menu_item_t));
@@ -267,15 +273,53 @@ static void * window_menu_init(void) {
 }
 
 
+//
+// Draw the menu items, with different colors indicating whether each
+// menu item is enabled (white, meaning it's available for the user
+// to select) or disabled (gray, not selectable).  Also indicate the
+// currently active PDO (if any) in green
+//
+// The menu is large enough and the screen is small enough that it
+// doesn't always all fit.  In that case, show the parts of the menu
+// near the selected item, and the rest is off-screen and invisible.
+//
+
 static void window_menu_draw(void * void_context) {
     window_menu_context_t * context = (window_menu_context_t*)void_context;
 
+    uint8_t const * font = font6x9;
+    int w=6, h=9;
+    int scale=2;
+
+    // This is the X position where we'll draw all the menu items.
     int x_pos = 5;
-    int y_pos = 5;
 
     hagl_clear(display);
 
     context->current_pdo = husb238_get_current_pdo(i2c);
+
+    // If we draw the menu in the same place as last time, will the
+    // selected item be on the screen?  If not, we need to move the menu
+    // up or down.
+    int selected_item_y_pos = context->y_start + (context->menu.selected_item * h * scale);
+    if (selected_item_y_pos < MENU_Y_MARGIN) {
+        // Selected item is off the top of the screen, move the menu down.
+        // To minimize visual disruption, we want the selected item to
+        // be at the *top* of the screen.
+        selected_item_y_pos = MENU_Y_MARGIN;
+        context->y_start = selected_item_y_pos - (context->menu.selected_item * h * scale);
+    } else if ((selected_item_y_pos + (h * scale) + MENU_Y_MARGIN) > display_height) {
+        // Selected item is off the bottom of the screen, move the
+        // menu up.  To minimize visual disruption, we want the selected
+        // item to be at the *bottom* of the screen.
+        selected_item_y_pos = display_height - MENU_Y_MARGIN - (h * scale);
+        context->y_start = selected_item_y_pos - (context->menu.selected_item * h * scale);
+    }
+
+    // This is the Y position where we'll start drawing the first
+    // menu item.  Each menu item below that is drawn one "character
+    // height" lower.
+    int y_pos = context->y_start;
 
     for (int i = 0; i < context->menu.num_items; ++i) {
         hagl_color_t white = hagl_color(display, 255, 255, 255);
@@ -283,10 +327,6 @@ static void window_menu_draw(void * void_context) {
         hagl_color_t green = hagl_color(display, 0, 255, 0);
 
         hagl_color_t text_color;
-
-        uint8_t const * font = font6x9;
-        int w=6, h=9;
-        int scale=2;
 
         if (context->menu.items[i].enabled) {
             if ((i < 6) && (context->pdos[i].id == context->current_pdo)) {
@@ -298,13 +338,14 @@ static void window_menu_draw(void * void_context) {
             text_color = gray;
         }
 
-        hagl_put_text_scaled(display, context->menu.items[i].text, x_pos, y_pos, text_color, scale, font);
-
-        if (i == context->menu.selected_item) {
-            hagl_color_t red = hagl_color(display, 255, 0, 0);
-            wchar_t cursor[] = L"<<<";
-            size_t len = wcslen(context->menu.items[i].text);
-            hagl_put_text_scaled(display, cursor, x_pos+(len*w*scale), y_pos, red, scale, font);
+        if ((y_pos >= 0) && (y_pos < display_height - (h*scale))) {
+            hagl_put_text_scaled(display, context->menu.items[i].text, x_pos, y_pos, text_color, scale, font);
+            if (i == context->menu.selected_item) {
+                hagl_color_t red = hagl_color(display, 255, 0, 0);
+                wchar_t cursor[] = L"<<<";
+                size_t len = wcslen(context->menu.items[i].text);
+                hagl_put_text_scaled(display, cursor, x_pos+(len*w*scale), y_pos, red, scale, font);
+            }
         }
 
         y_pos += h * scale;

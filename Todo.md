@@ -1,7 +1,5 @@
 # Todo
 
-handle menus that don't fit on the screen
-
 FIXME: The screw terminal needs to be attached to the internal wires
 and screwed to the enclosure after the lid/case is put on the stack.
 Maybe instead of soldering the internal wires to the screw terminal I'll
