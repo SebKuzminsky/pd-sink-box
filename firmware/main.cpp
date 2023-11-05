@@ -89,6 +89,7 @@ static bool read_flash(void) {
 
 
 static i2c_inst_t * i2c;
+static int i2c_comm_errors = 0;
 
 static hagl_backend_t *display;
 
@@ -132,6 +133,7 @@ void window_main_draw(void * void_context) {
     hagl_clear(display);
 
     if (!husb238_connected(i2c)) {
+        ++i2c_comm_errors;
         text_color = hagl_color(display, 255, 0, 0);
 
         r = swprintf(str, sizeof(str), L"No");
@@ -155,11 +157,12 @@ void window_main_draw(void * void_context) {
 
     r = husb238_get_contract(i2c, volts, max_current);
     if (r != PICO_OK) {
+        ++i2c_comm_errors;
         printf("error reading PD contract from HUSB238\n");
         volts = -1;
         max_current = -1.0;
     }
-    printf("PD contract: %dV %4.2fA\n", volts, max_current);
+    printf("(%d comm errors) PD contract: %dV %4.2fA\n", i2c_comm_errors, volts, max_current);
 
     if (volts > 0) {
         // Got a PD contract, happy green text.
@@ -296,7 +299,10 @@ static void window_menu_draw(void * void_context) {
 
     hagl_clear(display);
 
-    context->current_pdo = husb238_get_current_pdo(i2c);
+    int r = husb238_get_current_pdo(i2c, &context->current_pdo);
+    if (r != PICO_OK) {
+        ++i2c_comm_errors;
+    }
 
     // If we draw the menu in the same place as last time, will the
     // selected item be on the screen?  If not, we need to move the menu
@@ -363,6 +369,7 @@ void window_menu_selected(void * void_context) {
 
     r = husb238_get_pdos(i2c, context->pdos);
     if (r != PICO_OK) {
+        ++i2c_comm_errors;
         printf("error reading PDOs\n");
     }
 
@@ -447,9 +454,19 @@ void window_menu_click(void * void_context) {
         return;
     }
 
-    husb238_select_pdo(i2c, context->pdos[context->menu.selected_item].id);
-    husb238_dump_registers(i2c);
-    context->current_pdo = husb238_get_current_pdo(i2c);
+    int r ;
+    r = husb238_select_pdo(i2c, context->pdos[context->menu.selected_item].id);
+    if (r != PICO_OK) {
+        ++i2c_comm_errors;
+    }
+    r = husb238_dump_registers(i2c);
+    if (r != PICO_OK) {
+        ++i2c_comm_errors;
+    }
+    r = husb238_get_current_pdo(i2c, &context->current_pdo);
+    if (r != PICO_OK) {
+        ++i2c_comm_errors;
+    }
     hmi_set_active_window(WINDOW_MAIN);
 }
 
