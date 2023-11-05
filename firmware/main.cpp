@@ -707,27 +707,50 @@ static uint32_t window_info_draw(void * void_context) {
 
     hagl_clear(display);
 
-    r = swprintf(str, sizeof(str), L"Build");
-    x = (display->width - (r * w * scale))/2;
-    y = (display->height / 2) - (2 * h * scale);
-    hagl_put_text_scaled(display, str, x, y, text_color, scale, font);
+    //
+    // Print the github url small at the top.  Break it into three lines
+    // so it fits even when the screen is in narrow/portrait orientation.
+    //
 
-    r = swprintf(str, sizeof(str), L"version");
+    r = swprintf(str, sizeof(str), L"github.com/");
+    x = (display->width - (r * w))/2;
+    y = 2 * h;
+    hagl_put_text_scaled(display, str, x, y, text_color, 1, font);
+
+    r = swprintf(str, sizeof(str), L"SebKuzminsky/");
+    x = (display->width - (r * w))/2;
+    y = 3 * h;
+    hagl_put_text_scaled(display, str, x, y, text_color, 1, font);
+
+    r = swprintf(str, sizeof(str), L"pd-sink-box");
+    x = (display->width - (r * w))/2;
+    y = 4 * h;
+    hagl_put_text_scaled(display, str, x, y, text_color, 1, font);
+
+
+    //
+    // Print the firmware version big near the middle.
+    //
+
+    int16_t y_start = 5 * h;  // This is how many rows are taken up by the URL at the top.
+    int16_t y_center = y_start + (display->height - y_start)/2;
+
+    r = swprintf(str, sizeof(str), L"Firmware:");
     x = (display->width - (r * w * scale))/2;
-    y = (display->height / 2) - (1 * h * scale);
+    y = y_center - (1 * h * scale);
     hagl_put_text_scaled(display, str, x, y, text_color, scale, font);
 
     // `version` is from version-info.c, generated at build time.
     r = swprintf(str, sizeof(str), L"%s", version_info_commit);
     x = (display->width - (r * w * scale))/2;
-    y = (display->height / 2) + (0 * h * scale);
+    y = y_center + (0 * h * scale);
     hagl_put_text_scaled(display, str, x, y, text_color, scale, font);
 
     // `dirty` is from version-info.c, generated at build time.
     if (strlen(version_info_dirty) > 0) {
         r = swprintf(str, sizeof(str), L"%s", version_info_dirty);
         x = (display->width - (r * w * scale))/2;
-        y = (display->height / 2) + (1 * h * scale);
+        y = y_center + (1 * h * scale);
         hagl_put_text_scaled(display, str, x, y, text_color, scale, font);
     }
 
