@@ -21,7 +21,7 @@ RUN ( \
 )
 
 # "SKIP_VSCODE=1" means "don't try to install VSCode"
-# "SKIP_USART=1" means "don't try to disable the host-side Raspberry Pi serial console"
+# "SKIP_UART=1" means "don't try to disable the host-side Raspberry Pi serial console"
 RUN ( \
     set -e; \
     export SKIP_VSCODE=1; \
