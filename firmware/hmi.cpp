@@ -1,7 +1,7 @@
 #include "pico/time.h"
 
 #include "hmi.h"
-#include "encoder.h"
+#include "quadrature_encoder.pio.h"
 #include "button.pio.h"
 
 
@@ -12,7 +12,9 @@ static int hmi_active_window;
 void hmi_init(hmi_window_t * windows) {
     hmi_windows = windows;
 
-    encoder_init();
+    uint const encoder_gpio_a = 0;
+    pio_add_program_at_offset(pio1, &quadrature_encoder_program, 0);
+    quadrature_encoder_program_init(pio1, encoder_gpio_a, 0);
 
     uint const button_gpio = 2;
     pio_add_program_at_offset(pio0, &button_program, 0);
@@ -37,9 +39,11 @@ void hmi_set_active_window(int id) {
 
 
 void hmi_run(void) {
-    int r;
     bool need_redraw = true;
     absolute_time_t next_redraw = at_the_end_of_time;
+
+    int new_count, delta;
+    int old_count = quadrature_encoder_get_count();
 
     while (true) {
         if (!is_at_the_end_of_time(next_redraw)) {
@@ -58,17 +62,20 @@ void hmi_run(void) {
             }
         }
 
-        r = encoder_scan();
-        if (r == 1) {
-            if (hmi_windows[hmi_active_window].event_cw != nullptr) {
-                hmi_windows[hmi_active_window].event_cw(hmi_windows[hmi_active_window].context);
-                need_redraw = true;
-            }
-        } else if (r == -1) {
+        new_count = quadrature_encoder_get_count();
+        delta = new_count - old_count;
+        if (delta >= 4) {
             if (hmi_windows[hmi_active_window].event_ccw != nullptr) {
                 hmi_windows[hmi_active_window].event_ccw(hmi_windows[hmi_active_window].context);
                 need_redraw = true;
             }
+            old_count = new_count;
+        } else if (delta <= -4) {
+            if (hmi_windows[hmi_active_window].event_cw != nullptr) {
+                hmi_windows[hmi_active_window].event_cw(hmi_windows[hmi_active_window].context);
+                need_redraw = true;
+            }
+            old_count = new_count;
         }
 
         uint32_t button_state;
