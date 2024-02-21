@@ -40,7 +40,8 @@ HUSB238:
 * <https://www.adafruit.com/product/5807>
 * <https://en.hynetek.com/2421.html>
 
-RP2040 (Raspberry Pi Pico):
+RP2040 (Raspberry Pi Pico, non-H variant, i.e. the one without pin
+headers):
 * <https://www.raspberrypi.com/products/raspberry-pi-pico/>
 
 Mini360:
