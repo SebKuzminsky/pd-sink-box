@@ -174,23 +174,34 @@ static uint32_t window_main_draw(void * void_context) {
     printf("(%d comm errors) PD contract: %dV %4.2fA\n", i2c_comm_errors, volts, max_current);
 
     if (volts > 0) {
-        // Got a PD contract, happy green text.
+        // Got a PD contract, show voltage and current limit in happy green text.
         text_color = hagl_color(display, 0, 255, 0);
+
+        r = swprintf(str, sizeof(str), L"%dV", volts);
+        x = (display->width - (r * w * scale))/2;
+        y = (display->height / 2) - h * scale;
+        hagl_put_text_scaled(display, str, x, y, text_color, scale, font);
+
+        r = swprintf(str, sizeof(str), L"%04.2fA", max_current);
+        x = (display->width - (r * w * scale))/2;
+        y = (display->height / 2) + 2;
+        hagl_put_text_scaled(display, str, x, y, text_color, scale, font6x9);
+
     } else {
         // No PD contract established, sad grayish text.
         text_color = hagl_color(display, 150, 150, 150);
         redraw_wait = 100;  // HUSB238 i2c comm error or HUSB238 reports "no contract", re-try soon.
+
+        r = swprintf(str, sizeof(str), L"waiting");
+        x = (display->width - (r * w * scale))/2;
+        y = (display->height / 2) - h * scale;
+        hagl_put_text_scaled(display, str, x, y, text_color, scale, font);
+
+        r = swprintf(str, sizeof(str), L"for source");
+        x = (display->width - (r * w * scale))/2;
+        y = (display->height / 2) + 2;
+        hagl_put_text_scaled(display, str, x, y, text_color, scale, font6x9);
     }
-
-    r = swprintf(str, sizeof(str), L"%dV", volts);
-    x = (display->width - (r * w * scale))/2;
-    y = (display->height / 2) - h * scale;
-    hagl_put_text_scaled(display, str, x, y, text_color, scale, font);
-
-    r = swprintf(str, sizeof(str), L"%04.2fA", max_current);
-    x = (display->width - (r * w * scale))/2;
-    y = (display->height / 2) + 2;
-    hagl_put_text_scaled(display, str, x, y, text_color, scale, font6x9);
 
     hagl_flush(display);
 
