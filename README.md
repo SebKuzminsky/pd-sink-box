@@ -234,6 +234,10 @@ These are about 20 mm long.
 Solder power leads to the HUSB238 board, one pair long to go to the
 screw terminal and one pair short to go to the Mini360.
 
+Solder the long power leads to the screw terminal, with the correct wire
+lengths so the screw terminal will fit into its slot in the lid during
+final assembly at the end.
+
 Solder the short power leads from the HUSB238 to the input points on
 the Mini360.
 
